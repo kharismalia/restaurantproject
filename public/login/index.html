@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../styles/login.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="login">
+            <form action="" name="login">
+                <h1>Login Admin</h1>
+                <hr>
+                <p>SEAFOOD NYAM NYAM</p>
+                <label for="">Username</label>
+                <input type="text" name="username" placeholder="Nama pengguna" required autofocus>
+                <label for="">Password</label>
+                <input type="password" name="password" placeholder="Kata sandi" required>
+                <button>Login</button>
+                <p>
+                    <a href="#">Forgot Password</a>
+                </p>
+
+            </form>
+        </div>
+
+        <div class="right">
+            <img src="pngwing.com.png" alt="">
+
+        </div>
+    </div>
+
+    <script>
+        document.login.onsubmit = async (e) => {
+            e.preventDefault();
+            let account = {
+                username: document.login.username.value,
+                password: document.login.password.value
+            }
+            await fetch("/api/v1/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(account)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.message === "login berhasil"){
+                    localStorage.setItem("token", data.token);
+                    window.location.href = "/admin/index.html";      
+                }else{
+                    document.login.username.value = "";
+                    document.login.password.value = "";
+                    location.reload()          
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>

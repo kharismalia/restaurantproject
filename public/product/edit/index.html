@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <!-- <link rel="stylesheet" href="../../styles/dashboard.css"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <script src="../../js/appearance/index.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="back">
+            <a href="../index.html">
+                <img src="../../image/arrow-back.png" alt="" srcset="">
+            </a>
+        </div>
+        <div class="card">
+            <form name="edit">
+                <label for="fname">Nama</label>
+                <input type="text" id="fname" name="name" placeholder="Nama">
+                <div class="group-form">
+                    <div>
+                        <label for="lname">Harga</label>
+                        <input type="text" id="lname" name="harga" placeholder="Harga">
+                    </div>
+                    <div>
+                        <label for="lname">Stok</label>
+                        <input type="text" id="lname" name="stok" placeholder="Stok">
+                    </div>
+                </div>
+
+                <div class="files">
+                    <input type="file" id="lname" name="photo" placeholder="Photo">
+                </div>
+                <label for="kategori">Kategori</label>
+                <select id="ktg" name="kategori">
+
+                </select>
+                <button type="submit">update</button>
+            </form>
+        </div>
+    </div>
+</body>
+<script>
+
+    const searchParams = new URLSearchParams(location.search);
+
+    fetch(`/api/v1/product/${searchParams.get("name")}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data)
+            fetch("/api/v1/category", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+
+            })
+                .then(response => response.json())
+                .then(kategori => {
+                    console.log(kategori.data)
+                    const kategoriUpdate = document.querySelector("#ktg");
+                    if (kategori.data.length > 0) {
+                        kategori.data.map((item, index) => {
+                            const option = document.createElement("option");
+                            option.value = item.id;
+                            option.textContent = item.ktg_name;
+                            kategoriUpdate.appendChild(option);
+                            if (data.data[0].categories === item.id) {
+                                option.selected = true
+                            }
+                        });
+                    } else {
+                        const option = document.createElement("option");
+                        option.textContent = "KOSONG";
+                        kategoriUpdate.appendChild(option);
+                    }
+
+                });
+            document.edit.name.value = data.data[0].name;
+            document.edit.harga.value = data.data[0].price;
+            document.edit.stok.value = data.data[0].stock;
+            document.edit.photo.files[0] = `${data.data[0].photo}`;
+            document.edit.kategori.value = data.data[0].categoris;
+        });
+
+    document.querySelector("button").onclick = async (e) => {
+        e.preventDefault();
+        const form  = new FormData();
+        form.append('nama',document.edit.name.value)
+        form.append('harga',document.edit.harga.value)
+        form.append('stok',document.edit.stok.value)
+        form.append('photo',document.edit.photo.files[0])
+        form.append('kategori',document.edit.kategori.value)
+        // const nama = document.edit.name.value;
+        // const harga = document.edit.harga.value;
+        // const stok = document.edit.stok.value;
+        // const photo = document.edit.photo.files[0];
+        // const kategori = document.edit.kategori.value;
+        await fetch(`/api/v1/product/${searchParams.get("id")}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body:form,
+        });
+        location.href = "/product";
+    };
+</script>
+
+</html>
